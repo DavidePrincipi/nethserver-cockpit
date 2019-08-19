@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 #
-# Copyright (C) 2018 Nethesis S.r.l.
+# Copyright (C) 2019 Nethesis S.r.l.
 # http://www.nethesis.it - nethserver@nethesis.it
 #
 # This script is part of NethServer.
@@ -21,33 +21,71 @@
 #
 
 use strict;
-use warnings;
 use JSON;
+use NethServer::ApiTools;
 
-require '/usr/libexec/nethserver/api/lib/auth_functions.pl';
+my %appRoutes = ();
+my %sysRoutes = ();
+my %pathMap = (
+    "certificate" => "certificates",
+    "users" => "users-groups",
+    "openssh" => "ssh",
+);
+my $isAdmin = 0;
+my $isRoot = $> eq 0 ? 1 : 0;
 
-my $ret = {"system" => [], "applications" => []};
-my $user = whoami();
-
-my @apps = list_applications();
-my @system_routes = list_system_routes();
-my $isAdmin = isAdmin($user);
-
-# root can always access everything
-if ($user eq 'root') {
-    foreach my $r (@system_routes) {
-        push($ret->{"system"}, $r)
+$ENV{'LANG'} = 'C';
+my $skip = 1;
+foreach my $line (split "\n", NethServer::ApiTools::exec_slurp('/usr/bin/sudo', '-ll')) {
+    if($line =~ /^Sudoers entry:/) {
+        $skip = 0;
+        next;
     }
-    foreach my $a (@apps) {
-        push($ret->{"applications"}, $a);
+    if($skip) {
+        next;
     }
-    $ret->{'status'}->{'isAdmin'} = int($user eq 'root');
-    $ret->{'status'}->{'isRoot'} = int($user eq 'root');
-    print encode_json($ret);
-    exit(0);
+
+    if($line =~ m|^\s+/usr/libexec/nethserver/api/system-(\w+)/(\w+/)*update|) {
+        $sysRoutes{exists $pathMap{$1} ? $pathMap{$1} : $1} = 1;
+    } elsif($line =~ m|^\s+/usr/libexec/nethserver/api/(\w+)(/\w+)+|) {
+        $appRoutes{$1} = 1;
+    }
+
+    # isAdmin assertion: true if ALL commands are enabled (wheel-like access)
+    if($line =~ m|^\s+ALL|) {
+        $isAdmin = 1;
+        %sysRoutes = map { $_ => 1 } (
+            "storage",
+            "disk-usage",
+            "certificates",
+            "dns",
+            "dhcp",
+            "backup",
+            "services",
+            "users-groups",
+            "network",
+            "ssh",
+            "tls-policy",
+            "trusted-networks",
+            "logs",
+            "terminal",
+            "subscription"
+        );
+        %appRoutes = map { $_ => 1 } NethServer::ApiTools::list_applications();
+        last;
+    }
 }
 
-$ret = get_acl($user);
-$ret->{'status'}->{'isRoot'} = int(0);
-$ret->{'status'}->{'isAdmin'} = int($isAdmin);
-print encode_json($ret);
+my $userShell = (getpwuid($>))[8];
+if($userShell =~ m/sh$/) {
+    $sysRoutes{'terminal'} = 1;
+}
+
+print encode_json({
+    "system" => [sort keys %sysRoutes],
+    "applications" => [sort keys %appRoutes],
+    "status" => {
+        "isRoot" => $isRoot,
+        "isAdmin" => $isAdmin,
+    }
+});
