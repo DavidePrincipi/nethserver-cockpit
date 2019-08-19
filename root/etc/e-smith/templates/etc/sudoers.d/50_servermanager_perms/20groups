@@ -1,0 +1,28 @@
+#
+# 20groups
+#
+{
+    foreach my $rule (split(',', ${'cockpit.socket'}{'delegation'} || '')) {
+
+        my ($group, @modules) = split(':', $rule);
+
+        if(!$group || !@modules) {
+            next;
+        }
+
+        my %CmndAliases = ();
+
+        # if at least one application delegation, push sudo power
+        if(grep m/^nethserver-/, @modules) {
+            $CmndAliases{'NSAPI_SYSTEM_APPS'} = 1
+        }
+
+        foreach (@modules) {
+            $CmndAliases{(m/^nethserver-/ ? 'NSAPI_' : 'NSAPI_SYSTEM_') . uc(tr/-/_/r)} = 1;
+        }
+
+        $OUT .= '%' . ($group =~ s/ /\\ /r) . ' ALL=NOPASSWD: ' . join(', ', sort keys %CmndAliases) . "\n";
+    }
+}
+
+
