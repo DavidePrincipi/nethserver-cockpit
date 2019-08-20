@@ -3,6 +3,9 @@
 #                         the NethServer Cockpit based Server Manager
 #
 
+Defaults!NSAPI_PUBLIC !requiretty
+Defaults!NSAPI_ADMINS !requiretty
+
 Cmnd_Alias NSAPI_PUBLIC = \
     /usr/libexec/nethserver/api/system-dns/read, \
     /usr/libexec/nethserver/api/system-company/read, \
@@ -24,12 +27,6 @@ Cmnd_Alias NSAPI_PUBLIC = \
     /usr/libexec/nethserver/api/system-settings/hints, \
     /usr/libexec/nethserver/api/system-subscription/hints, \
     /usr/libexec/nethserver/api/system-tls-policy/hints
-
-Defaults!NSAPI_PUBLIC !requiretty
-
-
-Cmnd_Alias NSAPI_SYSTEM_APPS = \
-    /usr/libexec/nethserver/api/system-apps/update
 
 
 Cmnd_Alias NSAPI_SYSTEM_DISK_USAGE = \
@@ -193,12 +190,11 @@ Cmnd_Alias NSAPI_SYSTEM_STORAGE = \
     /usr/libexec/nethserver/api/system-storage/update
 
 
-Cmnd_Alias NSAPI_SYSTEM = \
+Cmnd_Alias NSAPI_ADMINS = \
     NSAPI_SYSTEM_SSH, \
     NSAPI_SYSTEM_DNS, \
     NSAPI_SYSTEM_DHCP, \
     NSAPI_SYSTEM_LOGS, \
-    NSAPI_SYSTEM_APPS, \
     NSAPI_SYSTEM_TIME, \
     NSAPI_SYSTEM_BACKUP, \
     NSAPI_SYSTEM_COMPANY, \
@@ -215,7 +211,5 @@ Cmnd_Alias NSAPI_SYSTEM = \
     NSAPI_SYSTEM_TRUSTED_NETWORKS, \
     NSAPI_SYSTEM_TERMINAL, \
     NSAPI_SYSTEM_STORAGE, \
-    NSAPI_SYSTEM_USERS_GROUPS
-
-
-Defaults!NSAPI_SYSTEM !requiretty
+    NSAPI_SYSTEM_USERS_GROUPS, \
+    /usr/libexec/nethserver/api/system-apps/update

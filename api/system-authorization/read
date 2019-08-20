@@ -52,7 +52,8 @@ foreach my $line (split "\n", NethServer::ApiTools::exec_slurp('/usr/bin/sudo', 
     }
 
     # isAdmin assertion: true if ALL commands are enabled (wheel-like access)
-    if($line =~ m|^\s+ALL|) {
+    # or special system-apps/update is available
+    if($line =~ m{^\s+(ALL|/usr/libexec/nethserver/api/system-apps/update)}) {
         $isAdmin = 1;
         %sysRoutes = map { $_ => 1 } (
             "storage",

@@ -10,12 +10,7 @@
             next;
         }
 
-        my %CmndAliases = ();
-
-        # if at least one application delegation, push sudo power
-        if(grep m/^nethserver-/, @modules) {
-            $CmndAliases{'NSAPI_SYSTEM_APPS'} = 1
-        }
+        my %CmndAliases = ('NSAPI_PUBLIC' => 1);
 
         foreach (@modules) {
             $CmndAliases{(m/^nethserver-/ ? 'NSAPI_' : 'NSAPI_SYSTEM_') . uc(tr/-/_/r)} = 1;
