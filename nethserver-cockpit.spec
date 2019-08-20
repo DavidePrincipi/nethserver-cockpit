@@ -44,7 +44,13 @@ gzip -v %{buildroot}/usr/share/cockpit/nethserver/css/*
 mkdir -p %{buildroot}/usr/libexec/nethserver/
 mv api/ %{buildroot}/usr/libexec/nethserver/
 %{genfilelist}  %{buildroot} | \
-    grep -v -e '^/usr/libexec/nethserver/api/lib' -e '^%{perl_vendorlib}' > file.lst
+    grep -v \
+    -e '^/usr/libexec/nethserver/api/lib' \
+    -e '^%{perl_vendorlib}' \
+    -e '^/usr/share/cockpit/nethserver/categories/categories.json' \
+    -e '^/etc/sudoers.d/10_servermanager_api' \
+    -e '^/etc/sudoers.d/50_servermanager_perms' \
+    > file.lst
 
 %files -f file.lst
 %license COPYING
