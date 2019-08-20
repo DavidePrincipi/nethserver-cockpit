@@ -762,7 +762,7 @@ class Validator implements MandatoryValidatorInterface
         // .. append to last position
         $args[] = $value;
 
-        exec($this->prepareEscapedCommand('/sbin/e-smith/validate ${@}', $args), $outputArray, $exitCode);
+        exec($this->prepareEscapedCommand('/usr/bin/sudo /sbin/e-smith/validate ${@}', $args), $outputArray, $exitCode);
 
         if ($exitCode !== 0) {
             $reason = array_pop($outputArray);
