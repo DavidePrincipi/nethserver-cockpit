@@ -191,7 +191,7 @@ sub list_applications
 {
     my @apps;
     foreach my $manifest (glob("/usr/share/cockpit/nethserver/applications/*.json")) {
-        my $app = safe_read_json($manifest, {});
+        my $app = NethServer::ApiTools::safe_read_json($manifest, {});
         if($app->{'id'}) {
             push(@apps, $app->{'id'});
         }

@@ -34,6 +34,27 @@ my %pathMap = (
 my $isAdmin = 0;
 my $isRoot = $> eq 0 ? 1 : 0;
 
+if($isRoot) {
+    %sysRoutes = map { $_ => 1 } (
+        "storage",
+        "disk-usage",
+        "certificates",
+        "dns",
+        "dhcp",
+        "backup",
+        "services",
+        "users-groups",
+        "network",
+        "ssh",
+        "tls-policy",
+        "trusted-networks",
+        "logs",
+        "terminal",
+        "subscription"
+    );
+    %appRoutes = map { $_ => 1 } NethServer::ApiTools::list_applications();
+}
+
 $ENV{'LANG'} = 'C';
 my $skip = 1;
 foreach my $line (split "\n", NethServer::ApiTools::exec_slurp('/usr/bin/sudo', '-ll')) {
@@ -45,9 +66,9 @@ foreach my $line (split "\n", NethServer::ApiTools::exec_slurp('/usr/bin/sudo', 
         next;
     }
 
-    if($line =~ m|^\s+/usr/libexec/nethserver/api/system-(\w+)/(\w+/)*update|) {
+    if($line =~ m|^\s+/usr/libexec/nethserver/api/system-([-\w]+)/([-\w]+/)*update|) {
         $sysRoutes{exists $pathMap{$1} ? $pathMap{$1} : $1} = 1;
-    } elsif($line =~ m|^\s+/usr/libexec/nethserver/api/(\w+)(/\w+)+|) {
+    } elsif($line =~ m|^\s+/usr/libexec/nethserver/api/(nethserver-[-\w]+)(/[-\w]+)+|) {
         $appRoutes{$1} = 1;
     }
 
@@ -55,25 +76,6 @@ foreach my $line (split "\n", NethServer::ApiTools::exec_slurp('/usr/bin/sudo', 
     # or special system-apps/update is available
     if($line =~ m{^\s+(ALL|/usr/libexec/nethserver/api/system-apps/update)}) {
         $isAdmin = 1;
-        %sysRoutes = map { $_ => 1 } (
-            "storage",
-            "disk-usage",
-            "certificates",
-            "dns",
-            "dhcp",
-            "backup",
-            "services",
-            "users-groups",
-            "network",
-            "ssh",
-            "tls-policy",
-            "trusted-networks",
-            "logs",
-            "terminal",
-            "subscription"
-        );
-        %appRoutes = map { $_ => 1 } NethServer::ApiTools::list_applications();
-        last;
     }
 }
 
