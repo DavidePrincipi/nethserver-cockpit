@@ -7,6 +7,7 @@ Defaults!NSAPI_PUBLIC !requiretty
 Defaults!NSAPI_ADMINS !requiretty
 
 Cmnd_Alias NSAPI_PUBLIC = \
+    /sbin/e-smith/validate password-strength *, \
     /usr/libexec/nethserver/api/system-dns/read, \
     /usr/libexec/nethserver/api/system-company/read, \
     /usr/libexec/nethserver/api/system-hostname/read, \
