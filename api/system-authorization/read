@@ -30,6 +30,7 @@ my %pathMap = (
     "certificate" => "certificates",
     "users" => "users-groups",
     "openssh" => "ssh",
+    "packages" => "software-center",
 );
 my $isAdmin = 0;
 my $isRoot = $> eq 0 ? 1 : 0;
@@ -50,6 +51,7 @@ if($isRoot) {
         "trusted-networks",
         "logs",
         "terminal",
+        "software-center",
         "subscription"
     );
     %appRoutes = map { $_ => 1 } NethServer::ApiTools::list_applications();
