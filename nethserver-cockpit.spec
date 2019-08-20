@@ -48,15 +48,15 @@ mv api/ %{buildroot}/usr/libexec/nethserver/
     -e '^/usr/libexec/nethserver/api/lib' \
     -e '^%{perl_vendorlib}' \
     -e '^/usr/share/cockpit/nethserver/categories/categories.json' \
-    -e '^/etc/sudoers.d/10_servermanager_api' \
+    -e '^/etc/sudoers.d/50_nsapi' \
     > file.lst
 
 %files -f file.lst
 %license COPYING
 %doc README.rst
 %config /usr/share/cockpit/nethserver/categories/categories.json
-%attr(0440,root,root) /etc/sudoers.d/10_servermanager_api
-%attr(0440,root,root) %ghost /etc/sudoers.d/50_servermanager_perms
+%attr(0440,root,root) /etc/sudoers.d/50_nsapi
+%attr(0440,root,root) %ghost /etc/sudoers.d/55_nsapi_perms
 %dir %{_nseventsdir}/%{name}-update
 %dir /usr/libexec/nethserver/api/
 
