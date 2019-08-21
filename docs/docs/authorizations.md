@@ -50,7 +50,8 @@ API scripts are located under the `/usr/libexec/nethserver/api/` directory.
 2.  The `admins` key in e-smith `configuration` DB defines the system admin
     **user** and admins **group**. By default they are respectively `admin` and
     `domain admins`. Designed admins are allowed to use any System module and any
-    installed Application.
+    installed Application, provided that the correct sudoers configuration is
+    shipped (read more about this later on this page).
 
 3.  Only `root` is allowed to grant authorizations. Admins cannot grant or
     modify authorizations on System modules and Applications for themselves or other
