@@ -26,6 +26,10 @@ use NethServer::ApiTools;
 
 my %appRoutes = ();
 my %sysRoutes = ();
+
+# Map of system modules that have a name different from their API path
+# The key is the directory name suffix, the value is the corresponding UI route
+# The dir name prefix is "system-".
 my %pathMap = (
     "certificate" => "certificates",
     "users" => "users-groups",
@@ -34,28 +38,6 @@ my %pathMap = (
 );
 my $isAdmin = 0;
 my $isRoot = $> eq 0 ? 1 : 0;
-
-if($isRoot) {
-    %sysRoutes = map { $_ => 1 } (
-        "storage",
-        "disk-usage",
-        "certificates",
-        "dns",
-        "dhcp",
-        "backup",
-        "services",
-        "users-groups",
-        "network",
-        "ssh",
-        "tls-policy",
-        "trusted-networks",
-        "logs",
-        "terminal",
-        "software-center",
-        "subscription"
-    );
-    %appRoutes = map { $_ => 1 } NethServer::ApiTools::list_applications();
-}
 
 $ENV{'LANG'} = 'C';
 my $skip = 1;
@@ -76,11 +58,34 @@ foreach my $line (split "\n", NethServer::ApiTools::exec_slurp('/usr/bin/sudo', 
 
     # isAdmin assertion: true if ALL commands are enabled (wheel-like access)
     # or special system-apps/update is available
-    if($line =~ m{^\s+(ALL|/usr/libexec/nethserver/api/system-apps/update)}) {
+    if($line =~ m{^\s+(ALL|/usr/libexec/nethserver/api/system-apps/update)$}) {
         $isAdmin = 1;
     }
 }
 
+# Grant access to all known sys modules and apps to root and admins users
+if($isRoot || $isAdmin) {
+    %sysRoutes = (%sysRoutes, map { $_ => 1 } (
+        "storage",
+        "disk-usage",
+        "certificates",
+        "dns",
+        "dhcp",
+        "backup",
+        "services",
+        "users-groups",
+        "network",
+        "ssh",
+        "tls-policy",
+        "trusted-networks",
+        "logs",
+        "software-center",
+        "subscription"
+    ));
+    %appRoutes = (%appRoutes, map { $_ => 1 } NethServer::ApiTools::list_applications());
+}
+
+# Terminal access is granted if a *sh shell is set for the user
 my $userShell = (getpwuid($>))[8];
 if($userShell =~ m/sh$/) {
     $sysRoutes{'terminal'} = 1;
