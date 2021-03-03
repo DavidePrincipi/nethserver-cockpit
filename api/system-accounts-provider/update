@@ -102,7 +102,7 @@ if ($cmd eq 'local-ldap') {
         $db->set_prop('sssd', 'Workgroup', $wg);
     }
 
-    $cmd = "/usr/sbin/realm join --server-software=active-directory -v -U " . $input->{'AdUsername'} . " " . $realm;
+    $cmd = "/usr/sbin/realm join --membership-software=adcli --server-software=active-directory -v -U " . $input->{'AdUsername'} . " " . $realm;
     my $pid = open3(\*CHLD_IN, \*CHLD_OUT, \*CHLD_ERR, $cmd) or error("EventFailed", "join_failed");
     print CHLD_IN $input->{'AdPassword'}."\n";
     my $err = <CHLD_ERR>;
